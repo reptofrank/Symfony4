@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <div class="container">
+    <dl class="row">
+      <dt class="col-sm-3 text-center">{{ programmer.nickname }}</dt>
+      <dd class="col-sm-5 text-center">{{ programmer.tagLine }}</dd>
+      <dd class="col-sm-1 text-center">{{ programmer.avatarNumber }}</dd>
+      <dd class="col-sm-3 text-center">{{ programmer.created|date('d-m-Y H:i:s') }}</dd>
+    </dl>
+  </div>
+{% endblock %}

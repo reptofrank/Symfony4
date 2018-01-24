@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <div class="container">
+    <div class="languages">
+      <table class="table">
+        <thead>
+          <tr>
+            <td>Name</td>
+            <td>Icon</td>
+            <td>Percentage Popularity</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for language in languages %}
+              <tr>
+                <td>{{ language.name }}</td>
+                <td><img src="{{ language.icon }}" alt="{{ language.name }} icon" width="30" height="30"></td>
+                <td>{{ language.popularity }}%</td>
+              </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-group">
+      {{ form_start(languageForm) }}
+        <div class="form-group">
+          {{ form_row(languageForm.name) }}
+        </div>
+        <div class="form-group">
+          {{ form_row(languageForm.icon) }}
+        </div>
+        <div class="form-group">
+          {{ form_row(languageForm.popularity) }}
+        </div>
+
+        <button type="submit" class="btn btn-success" name="submit" formnovalidate>Add Language</button>
+      {{ form_end(languageForm) }}
+    </div>
+  </div>
+
+{% endblock %}
