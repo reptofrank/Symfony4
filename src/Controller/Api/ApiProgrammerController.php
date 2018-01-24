@@ -26,12 +26,11 @@ class ApiProgrammerController extends Controller
    */
   private function handleValidate($error)
   {
-    $service = $this->get('app.api_problem');
-    $apiProblem = $service->set(
+    $apiProblem = new ApiProblem(
       400,
-      $service::TYPE_INVALID_REQUEST_BODY_FORMAT
+      ApiProblem::TYPE_INVALID_REQUEST_BODY_FORMAT
     );
-    // $apiProblem = new ApiProblem(400, $service::TYPE_INVALID_REQUEST_BODY_FORMAT);
+    // $apiProblem = new ApiProblem(400, ApiProblem::TYPE_INVALID_REQUEST_BODY_FORMAT);
     $apiProblem->extraData('errors', $error);
     throw new ApiException($apiProblem);
     // $errorResponse = $apiProblem->toArray();
@@ -71,16 +70,15 @@ class ApiProgrammerController extends Controller
   {
     $data = json_decode($request->getContent(), true);
     if ($data === null) {
-      $service = $this->get('app.api_problem');
-      $apiProblem = $service->set(
+      $apiProblem = new ApiProblem(
         400,
-        $service::TYPE_INVALID_REQUEST_BODY_FORMAT
+        ApiProblem::TYPE_INVALID_REQUEST_BODY_FORMAT
       );
       throw new ApiException($apiProblem);
     }
     $isNew = !$programmer->getId();
 
-    $apiProperties = array('avatarNumber', 'tagLine');
+    $apiProperties = array('avatarNumber', 'tagLine', 'nickname');
     if ($isNew) {
       $apiProperties[] = 'nickname';
     }
@@ -101,10 +99,9 @@ class ApiProgrammerController extends Controller
     $em = $this->getDoctrine()->getManager();
     $programmer = $em->getRepository(Programmer::class)->findOneBy(['nickname' => $nickname]);
     if (!$programmer) {
-      $service = $this->get('app.api_problem');
-      $apiProblem = $service->set(
+      $apiProblem = new ApiProblem(
         404,
-        $service::TYPE_INVALID_REQUEST_URI
+        ApiProblem::TYPE_INVALID_REQUEST_URI
       );
       $apiProblem->extraData('details', sprintf('The programmer %s doesnt exist', $nickname));
       throw new ApiException($apiProblem);
@@ -138,7 +135,8 @@ class ApiProgrammerController extends Controller
     $programmer = $em->getRepository(Programmer::class)
                         ->findOneBy(['nickname' => $nickname]);
     if (!$programmer) {
-      $apiProblem = new ApiProblem(400, $service::TYPE_INVALID_REQUEST_BODY_FORMAT);
+      $apiProblem = new ApiProblem(404, ApiProblem::TYPE_INVALID_REQUEST_URI);
+      $apiProblem->extraData('details', sprintf('The programmer %s doesnt exist', $nickname));
       throw new ApiException($apiProblem);
     }
     $this->handleRequest($request, $programmer);
@@ -166,8 +164,7 @@ class ApiProgrammerController extends Controller
     }
 
     if (!$programmer) {
-      $service = $this->get('app.api_problem');
-      $apiProblem = $service->set(
+      $apiProblem = new ApiProblem(
         404
       );
       throw new ApiException($apiProblem);

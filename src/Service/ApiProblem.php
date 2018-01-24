@@ -53,19 +53,9 @@ class ApiProblem
          self::TYPE_INVALID_REQUEST_URI => 'Not Found'
      );
 
-  /**
-   * Set error details
-   *
-   * @param string $type
-   * @param int $statusCode
-   */
-   public function set($statusCode, $type = null)
-   {
-    //  $this->type = $type;
-    //  if (!isset(self::$titles[$type])) {
-    //    throw new \InvalidArgumentException(sprintf("There are no titles that match %s", $type));
-    //  }
 
+  function __construct($statusCode, $type = null)
+  {
     if (!$type) {
       $this->type = 'about:blank';
       $this->title = (null !== Response::$statusTexts[$statusCode]) ? Response::$statusTexts[$statusCode] : 'Unknown status code :(';
@@ -78,8 +68,7 @@ class ApiProblem
     }
       
       $this->statusCode = $statusCode;
-      return $this;
-   }
+  }
 
   /**
    * @return int

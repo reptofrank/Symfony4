@@ -39,13 +39,33 @@ class ProgrammerControllertest extends TestCase
   //     'avatarNumber' => 21,
   //     'tagLine' => 'a re-tested dev'
   //   );
-  //
+  
   //   $request = $client->request('PUT', 'programmers/CowboyCoder', ['body' => json_encode($payload)]);
-  //
+  
   //   $this->assertEquals(200, $request->getStatusCode());
   //   $data = json_decode($request->getBody(), true);
   //   $this->assertEquals('CowboyCoder', $data['nickname']);
   // }
+
+  public function testNotFoundPUT()
+  {
+    $client = new Client(['base_uri' => 'http://localhost:8000/api/']);
+    $payload = array(
+      'nickname' => 'CowBoyCoder',
+      'avatarNumber' => 21,
+      'tagLine' => 'a re-tested dev'
+    );
+  
+    try {
+      $request = $client->request('PUT', 'programmers/CowgirlCoder', ['body' => json_encode($payload)]);
+    } catch (ClientException $e) {
+      $request = $e->getResponse();
+    }
+  
+    $this->assertEquals(404, $request->getStatusCode());
+    // $data = json_decode($request->getBody(), true);
+    // $this->assertEquals('CowgirlCoder', $data['nickname']);
+  }
 
 
   // public function testDELETE()
@@ -104,20 +124,20 @@ class ProgrammerControllertest extends TestCase
   //
   // }
 
-  public function test404()
-  {
-      $client = new Client(['base_uri' => 'http://localhost:8000/api/']);
-      try {
-        $response = $client->request('GET', 'programmers/junta');
-      } catch (ClientException $e) {
-        $response = $e->getResponse();
-      }
+  // public function test404()
+  // {
+  //     $client = new Client(['base_uri' => 'http://localhost:8000/api/']);
+  //     try {
+  //       $response = $client->request('GET', 'programmers/junta');
+  //     } catch (ClientException $e) {
+  //       $response = $e->getResponse();
+  //     }
 
-      $this->assertEquals(404, $response->getStatusCode());
-      $data = json_decode($response->getBody(), true);
-      $this->assertEquals('about:blank', $data['type']);
-      $this->assertEquals('Not Found', $data['title']);
-      $this->assertEquals('The programmer junta doesnt exist', $data['details']);
+  //     $this->assertEquals(404, $response->getStatusCode());
+  //     $data = json_decode($response->getBody(), true);
+  //     $this->assertEquals('about:blank', $data['type']);
+  //     $this->assertEquals('Not Found', $data['title']);
+  //     $this->assertEquals('The programmer junta doesnt exist', $data['details']);
 
-  }
+  // }
 }
