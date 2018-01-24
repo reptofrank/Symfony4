@@ -63,6 +63,7 @@ class ProgrammerControllertest extends TestCase
     }
   
     $this->assertEquals(404, $request->getStatusCode());
+    $this->assertEquals('application/problem+json', $request->getHeaderLine('Content-Type'));
     // $data = json_decode($request->getBody(), true);
     // $this->assertEquals('CowgirlCoder', $data['nickname']);
   }

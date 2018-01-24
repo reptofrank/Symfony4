@@ -19,26 +19,25 @@ class ExceptionListener
     $exception = $event->getException();
 
     $path = $event->getRequest()->getPathInfo();
-    if (strpos($path, '/api') !== 0 || ! $exception instanceof ApiException) {
+    if (strpos($path, '/api') !== 0) {
       return;
     }
 
+    if ($exception instanceof ApiException) {
+      $apiProblem = $exception->getApiProblem();
+      $statusCode = $apiProblem->getStatusCode();
+    }else {
+      $statusCode = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+      $apiProblem = new ApiProblem($statusCode);
+    }
+
     $response = new JsonResponse(
-      $exception->getApiProblem()->toArray(),
-      $exception->getApiProblem()->getStatusCode(),
+      $apiProblem->toArray(),
+      $statusCode,
       array(
         'content-type' => 'application/problem+json'
       )
     );
-
-
-    // if ($exception instanceof HttpExceptionInterface) {
-    //   $response->setStatusCode($exception->getStatusCode());
-    //   $response->headers->replace($exception->getHeaders());
-    // }else {
-    //   $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
-    // }
-
     $event->setResponse($response);
   }
 }
