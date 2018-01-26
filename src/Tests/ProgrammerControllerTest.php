@@ -2,6 +2,7 @@
 
 namespace App\Tests;
 
+use GuzzleHttp\Exception\ServerException;
 use PHPUnit\Framework\TestCase;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\ClientException;
@@ -47,41 +48,73 @@ class ProgrammerControllertest extends TestCase
   //   $this->assertEquals('CowboyCoder', $data['nickname']);
   // }
 
-  public function testNotFoundPUT()
-  {
-    $client = new Client(['base_uri' => 'http://localhost:8000/api/']);
-    $payload = array(
-      'nickname' => 'CowBoyCoder',
-      'avatarNumber' => 21,
-      'tagLine' => 'a re-tested dev'
-    );
+  // public function testNotFoundPUT()
+  // {
+  //   $client = new Client(['base_uri' => 'http://localhost:8000/api/']);
+  //   $payload = array(
+  //     'nickname' => 'CowBoyCoder',
+  //     'avatarNumber' => 21,
+  //     'tagLine' => 'a re-tested dev'
+  //   );
   
-    try {
-      $request = $client->request('PUT', 'programmers/CowgirlCoder', ['body' => json_encode($payload)]);
-    } catch (ClientException $e) {
-      $request = $e->getResponse();
-    }
+  //   try {
+  //     $request = $client->request('PUT', 'programmers/CowgirlCoder', ['body' => json_encode($payload)]);
+  //   } catch (ClientException $e) {
+  //     $request = $e->getResponse();
+  //   }
   
-    $this->assertEquals(404, $request->getStatusCode());
-    $this->assertEquals('application/problem+json', $request->getHeaderLine('Content-Type'));
-    // $data = json_decode($request->getBody(), true);
-    // $this->assertEquals('CowgirlCoder', $data['nickname']);
-  }
+  //   $this->assertEquals(404, $request->getStatusCode());
+  //   $this->assertEquals('application/problem+json', $request->getHeaderLine('Content-Type'));
+  // }
 
 
   // public function testDELETE()
   // {
   //   $client = new Client(['base_uri' => 'http://localhost:8000/api/']);
   //   $payload = array(
-  //     'nickname' => 'ObjectOrienter298',
+  //     'nickname' => 'ObinnaOkafor',
   //     'avatarNumber' => 10
   //   );
-  //
-  //   $response = $client->request('DELETE', 'programmers/'.$payload['nickname'], ['body' => json_encode($payload)]);
-  //
-  //   $this->assertEquals(204, $response->getStatusCode());
-  //
+  
+  //   try {
+  //     $response = $client->request('DELETE', 'programmers/'.$payload['nickname'], ['body' => json_encode($payload)]);
+  //   } catch (ClientException $e) {
+  //     $response = $e->getResponse();
+  //   }
+  
+  //   $this->assertEquals(404, $response->getStatusCode());
+  
   // }
+  // 
+  
+  public function testGETProgrammersCollectionPaginated()
+  {
+    $client = new Client(['base_uri' => 'http://localhost:8000/api/']);
+    try {
+      $response = $client->request('GET', 'programmers');
+    } catch (ServerException $e) {
+      $response = $e->getResponse();
+      // print_r($response);
+    }
+    $res = json_decode($response->getBody(), true);
+
+    $this->assertEquals(5, $res['items'][4]['id']);
+    $this->assertEquals(10, $res['count']);
+    $this->assertEquals(64, $res['total']);
+    $this->assertArrayHasKey('_links.next', $res);
+    $nextLink = $res['_links.next'];
+    $response = $client->request('GET', $nextLink);
+    $res = json_decode($response->getBody(), true);
+    $this->assertEquals(16, $res['items'][4]['id']);
+    $this->assertEquals(10, $res['count']);
+    $this->assertEquals(64, $res['total']);
+    $this->assertArrayHasKey('_links.next', $res);
+    $lastLink = $res['_links.last'];
+    $response = $client->request('GET', $lastLink);
+    $res = json_decode($response->getBody(), true);
+    $this->assertEquals(4, $res['count']);
+    $this->assertArrayNotHasKey('_link.next', $res);
+  }
 
   // public function testPATCH()
   // {

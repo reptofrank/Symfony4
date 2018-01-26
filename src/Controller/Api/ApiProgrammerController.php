@@ -6,6 +6,7 @@ use App\Entity\Programmer;
 use App\Form\ProgrammerType;
 use App\Service\ApiProblem;
 use App\Service\ApiException;
+use App\Service\Paginator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -115,10 +116,13 @@ class ApiProgrammerController extends Controller
    * @return Programmer[] array
    * @Method("GET")
    */
-  public function allAction()
+  public function allAction(Request $request)
   {
     $programmers = $this->getDoctrine()->getRepository(Programmer::class)->findAll();
-    return $this->json($programmers);
+    $route = 'show_all';
+    $routeParams = array();
+    $response = $this->get('app.pagination_factory')->createCollection($programmers, 10, $request, $route, $routeParams);
+    return $this->json($response);
   }
 
   /**
@@ -135,9 +139,10 @@ class ApiProgrammerController extends Controller
     $programmer = $em->getRepository(Programmer::class)
                         ->findOneBy(['nickname' => $nickname]);
     if (!$programmer) {
-      $apiProblem = new ApiProblem(404, ApiProblem::TYPE_INVALID_REQUEST_URI);
-      $apiProblem->extraData('details', sprintf('The programmer %s doesnt exist', $nickname));
-      throw new ApiException($apiProblem);
+      // $apiProblem = new ApiProblem(404, ApiProblem::TYPE_INVALID_REQUEST_URI);
+      // $apiProblem->extraData('details', sprintf('The programmer %s doesnt exist', $nickname));
+      
+      throw $this->createNotFoundException(sprintf('The programmer %s doesn\'t exist', $nickname));
     }
     $this->handleRequest($request, $programmer);
     $em->persist($programmer);
@@ -155,24 +160,23 @@ class ApiProgrammerController extends Controller
    * @param Request $request
    * @return JsonResponse
    */
-  public function deleteAction(Programmer $programmer, Request $request)
+  public function deleteAction($nickname, Request $request)
   {
     $data = json_decode($request->getContent(), true);
-
+    // die('hello');
     if ($data === null) {
       return $this->json('Not Implemented', 501);
     }
 
+    $em = $this->getDoctrine()->getManager();
+    $programmer = $em->getRepository(Programmer::class)->findOneBy(array('nickname' => $nickname));
+
     if (!$programmer) {
-      $apiProblem = new ApiProblem(
-        404
-      );
-      throw new ApiException($apiProblem);
+      throw $this->createNotFoundException(sprintf("The programmer %s doesn't exist", $nickname));
     }elseif ($programmer->getNickname() !== $data['nickname']) {
       throw new \Exception("payload data does not match requested resource");
     }
 
-    $em = $this->getDoctrine()->getManager();
     $em->remove($programmer);
     $em->flush();
 

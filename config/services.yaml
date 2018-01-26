@@ -23,6 +23,11 @@ services:
       autowire: true
       public: true
 
+    app.pagination_factory:
+        class: App\Service\PaginationFactory
+        autowire: true
+        public: true
+
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
