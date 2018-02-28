@@ -91,28 +91,30 @@ class ProgrammerControllertest extends TestCase
   {
     $client = new Client(['base_uri' => 'http://localhost:8000/api/']);
     try {
-      $response = $client->request('GET', 'programmers');
+      $response = $client->request('GET', 'programmers?filter=Object');
     } catch (ServerException $e) {
       $response = $e->getResponse();
       // print_r($response);
     }
     $res = json_decode($response->getBody(), true);
 
-    $this->assertEquals(5, $res['items'][4]['id']);
+    // $this->assertEquals(5, $res['items'][4]['id']);
     $this->assertEquals(10, $res['count']);
-    $this->assertEquals(64, $res['total']);
+    $this->assertEquals(51, $res['total']);
     $this->assertArrayHasKey('_links.next', $res);
     $nextLink = $res['_links.next'];
     $response = $client->request('GET', $nextLink);
     $res = json_decode($response->getBody(), true);
-    $this->assertEquals(16, $res['items'][4]['id']);
+    // $this->assertEquals(16, $res['items'][4]['id']);
     $this->assertEquals(10, $res['count']);
-    $this->assertEquals(64, $res['total']);
+    $this->assertEquals(51, $res['total']);
     $this->assertArrayHasKey('_links.next', $res);
     $lastLink = $res['_links.last'];
     $response = $client->request('GET', $lastLink);
     $res = json_decode($response->getBody(), true);
-    $this->assertEquals(4, $res['count']);
+    unset($res['items']);
+    print_r($res);
+    $this->assertEquals(1, $res['count']);
     $this->assertArrayNotHasKey('_link.next', $res);
   }
 

@@ -32,6 +32,7 @@ class PaginationFactory
 	{
 		$paginator = new Paginator(count($items), $itemsPerPage);
 		$pageNumber = $request->query->get('page', 1);
+		$routeParams = array_merge($routeParams, $request->query->all());
 		$createLinkUrl = function($pageNumber) use ($route, $routeParams){
 		  return $this->router->generate($route, array_merge(
 		    $routeParams,

@@ -13,16 +13,18 @@ class ProgrammerRepository extends ServiceEntityRepository
         parent::__construct($registry, Programmer::class);
     }
 
-    /*
-    public function findBySomething($value)
+    
+    public function findAllOr($filter = null)
     {
-        return $this->createQueryBuilder('p')
-            ->where('p.something = :value')->setParameter('value', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $result = $this->createQueryBuilder('p');
+        if ($filter) {
+            $result->where('p.nickname LIKE :filter')
+                    // ->orderBy('p.id', 'ASC')
+                    // ->setMaxResults(10)
+                    ->setParameter('filter', $filter.'%');
+        }
+
+        return $result->getQuery()->getResult();
     }
-    */
+    
 }

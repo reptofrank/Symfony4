@@ -118,12 +118,28 @@ class ApiProgrammerController extends Controller
    */
   public function allAction(Request $request)
   {
-    $programmers = $this->getDoctrine()->getRepository(Programmer::class)->findAll();
+    $filter = $request->query->get('filter');
+    $programmers = $this->getDoctrine()->getRepository(Programmer::class)->findAllOr($filter);
     $route = 'show_all';
     $routeParams = array();
     $response = $this->get('app.pagination_factory')->createCollection($programmers, 10, $request, $route, $routeParams);
     return $this->json($response);
   }
+
+  /**
+   * Search for programmers matching search query
+   *
+   * @Route("/api/programmers/{filter}", name="search_programmers")
+   * @Method("GET")
+   * @param  Request $request [description]
+   * @return [type]           [description]
+   */
+  // public function searchAction(Request $request, $filter)
+  // {
+  //   $result = $this->getDoctrine()->getRepository(Programmer::class)->findBySomething($filter);
+  //   $route = 'search_programmers';
+  //   $routeParams = array('filter');
+  // }
 
   /**
    * @Route("/api/programmers/{nickname}", name="update_programmer")
